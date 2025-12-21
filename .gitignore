@@ -1,8 +1,12 @@
 # Ignore virtual environment
 myenv
-
 # Ignore Environment variables file
 .env
-
 # Ignore .gitignore file
 !.gitignore
+# Launch json
+.vscode
+# Ignore Python cache files
+__pycache__/
+# DB instances
+dev.db
