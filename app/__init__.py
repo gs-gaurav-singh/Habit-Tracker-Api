@@ -2,7 +2,7 @@
 from flask import Flask
 from .db import db
 from .routes.auth import auth_bp
-# from .routes.habits import habits_bp
+from .routes.habits import habits_bp
 # from .routes.stats import stats_bp
 from dotenv import load_dotenv
 import os
@@ -32,6 +32,8 @@ def create_app(test_config=None):
 
     # Register blueprints (modular route groups)
     app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(habits_bp, url_prefix='/habits')
+    # app.register_blueprint(stats_bp, url_prefix='/stats')
 
     # Create tables for demo/dev if not using migrations
     with app.app_context():
