@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, g
 from sqlalchemy.exc import SQLAlchemyError
 from app.db import db
 from app.models import Habit
@@ -8,7 +8,7 @@ habits_bp = Blueprint("habits", __name__)
 
 
 # Create a new habit
-@habits_bp.route("", methods=["POST"])
+@habits_bp.route("/add_habits", methods=["POST"])
 @login_required
 def create_habit():
     data = request.get_json() or {}
@@ -16,7 +16,7 @@ def create_habit():
     frequency = data.get("frequency", "daily")
 
     if not title:
-        return jsonify({"message": "Title is required."}), 400
+        return jsonify({"Message": "Title is required."}), 400
     
     new_habit = Habit(title=title, frequency=frequency, user_id=g.current_user.id)
 
@@ -32,26 +32,30 @@ def create_habit():
         return jsonify({"message": "Error creating habit.", "error": str(e)}), 500
     
 # Get all habits
-@habits_bp.route("", methods=["GET"])
+@habits_bp.route("/", methods=["GET"])
 @login_required
-def get_habits(current_user):
-    habits = Habit.query.filter_by(user_id=current_user.id).all()
-    return jsonify([habit.to_dict() for habit in habits]), 200
+def get_habits():
+    habits = Habit.query.filter_by(user_id=g.current_user.id).all()
+    if len(habits) == 0:
+        return jsonify({"Message": "Habit not found."}), 404
+    else:
+        return jsonify([habit.to_dict() for habit in habits]), 200
 
 # Get a single habit
 @habits_bp.route('/<int:habit_id>', methods=["GET"])
 @login_required
-def get_habit(current_user, habit_id):
-    habit = Habit.query.filter_by(id=habit_id, user_id=current_user.id).first()
+def get_habit(habit_id):
+    habit = Habit.query.filter_by(id=habit_id, user_id=g.current_user.id).first()
     if not habit:
         return jsonify({"message": "Habit not found."}), 404
+    
     return jsonify(habit.to_dict()), 200
 
 # Update the habit
-@habits_bp.route("/<int:habit_id>", method=["PUT"])
+@habits_bp.route("/update/<int:habit_id>", methods=["PUT"])
 @login_required
-def update_habit(current_user, habit_id):
-    habit = Habit.query.filter_by(id=habit_id, user_id=current_user.id).first()
+def update_habit(habit_id):
+    habit = Habit.query.filter_by(id=habit_id, user_id=g.current_user.id).first()
     if not habit:
         return jsonify({"message": "Habit not found."}), 404
     
@@ -70,10 +74,10 @@ def update_habit(current_user, habit_id):
         return jsonify({"message": "Error updating habit.", "error": str(e)}), 500
     
 # Delete a habit
-@habits_bp.route("/<int:habit_id>", methods=["DELETE"])
+@habits_bp.route("/delete/<int:habit_id>", methods=["DELETE"])
 @login_required
-def delete_habit(current_user, habit_id):
-    habit = Habit.query.filter_by(id=habit_id, user_id=current_user.id).first()
+def delete_habit(habit_id):
+    habit = Habit.query.filter_by(id=habit_id, user_id=g.current_user.id).first()
     if not habit:
         return jsonify({"message": "Habit not found."}), 404
 
