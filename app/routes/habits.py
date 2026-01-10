@@ -74,7 +74,7 @@ def update_habit(habit_id):
         return jsonify({"message": "Error updating habit.", "error": str(e)}), 500
     
 # Delete a habit
-@habits_bp.route("/delete/<int:habit_id>", methods=["DELETE"])
+@habits_bp.route("/ /<int:habit_id>", methods=["DELETE"])
 @login_required
 def delete_habit(habit_id):
     habit = Habit.query.filter_by(id=habit_id, user_id=g.current_user.id).first()

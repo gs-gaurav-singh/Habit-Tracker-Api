@@ -18,7 +18,7 @@ def login_required(fn):
         
         token = parts[1]
         try:
-            payload = jwt.decode(token, current_app.config.get("JWT_SECRET"), algorithms=["HS256"])
+            payload = jwt.decode(token, current_app.config.get("SECRET_KEY", 'dev'), algorithms=["HS256"])
         except jwt.ExpiredSignatureError:
             return jsonify({"message": "Token has expired"}), 401
         except Exception:

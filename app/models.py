@@ -2,7 +2,7 @@ from .db import db
 from datetime import datetime
 from .db import db
 from datetime import datetime
-from passlib.hash import bcrypt
+from passlib.hash import pbkdf2_sha256 as hasher
 
 
 class User(db.Model):
@@ -19,11 +19,11 @@ class User(db.Model):
 
     def set_password(self, password):
         """Hash and set the user's password."""
-        self.password_hash = bcrypt.hash(password)
+        self.password_hash = hasher.hash(password)
 
     def check_password(self, password):
         """Verify the user's password."""
-        return bcrypt.verify(password, self.password_hash)
+        return hasher.verify(password, self.password_hash)
 
 
 class Habit(db.Model):
@@ -39,6 +39,17 @@ class Habit(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     checkins = db.relationship("Checkin", back_populates="habit", cascade="all, delete-orphan")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "frequency": self.frequency,
+            "user_id": self.user_id,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "checkins_count": len(self.checkins) if self.checkins is not None else 0,
+        }
 
 
 class Checkin(db.Model):

@@ -40,9 +40,9 @@ def login():
     
     payload = {
         "user_id": user.id,
-        "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+        "exp": datetime.datetime.now() + datetime.timedelta(hours=1)
     }
 
-    token = jwt.encode(payload, current_app.config.get("JWT_SECRET"), algorithm="HS256")
+    token = jwt.encode(payload, current_app.config.get("SECRET_KEY", 'dev'), algorithm="HS256")
 
     return jsonify({"token": token}), 200
