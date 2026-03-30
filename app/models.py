@@ -1,7 +1,5 @@
 from .db import db
 from datetime import datetime
-from .db import db
-from datetime import datetime
 from passlib.hash import pbkdf2_sha256 as hasher
 
 
